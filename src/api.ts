@@ -20,6 +20,7 @@ export const api = {
 
   async getAdmissions() {
     const res = await fetch(`${API_BASE}?table=student_admissions`);
+    if (!res.ok) throw new Error(await res.text());
     const rows = await res.json();
     return rows.map(mapAdmission);
   },
@@ -36,6 +37,7 @@ export const api = {
 
   async getPromotions() {
     const res = await fetch(`${API_BASE}?table=student_promotions`);
+    if (!res.ok) throw new Error(await res.text());
     const rows = await res.json();
     return rows.map(mapPromotion);
   },
@@ -52,6 +54,7 @@ export const api = {
 
   async getClassGroups() {
     const res = await fetch(`${API_BASE}?table=class_groups`);
+    if (!res.ok) throw new Error(await res.text());
     const rows = await res.json();
     return rows.map(mapClassGroup);
   },
@@ -68,6 +71,7 @@ export const api = {
 
   async getAlumni() {
     const res = await fetch(`${API_BASE}?table=alumni`);
+    if (!res.ok) throw new Error(await res.text());
     const rows = await res.json();
     return rows.map(mapAlumni);
   },
@@ -84,6 +88,7 @@ export const api = {
 
   async getContinuing() {
     const res = await fetch(`${API_BASE}?table=continuing_students`);
+    if (!res.ok) throw new Error(await res.text());
     const rows = await res.json();
     return rows.map(mapContinuing);
   },
@@ -100,6 +105,7 @@ export const api = {
 
   async getNonContinuing() {
     const res = await fetch(`${API_BASE}?table=non_continuing_students`);
+    if (!res.ok) throw new Error(await res.text());
     const rows = await res.json();
     return rows.map(mapNonContinuing);
   },

@@ -1,19 +1,11 @@
 import React, { useState } from "react";
-import { useApp, DetailViewType } from "../AppContext";
+import { useApp } from "../AppContext";
 import { SchoolLevel } from "../types";
 import {
   ArrowLeft,
   Save,
   Users,
-  TrendingUp,
-  School,
   GraduationCap,
-  BookOpen,
-  UserX,
-  Plus,
-  Minus,
-  CheckCircle,
-  FileText,
   AlertCircle,
   Building,
 } from "lucide-react";
@@ -48,10 +40,8 @@ export const DetailPanel: React.FC = () => {
   const [promotionTab, setPromotionTab] = useState<"SD" | "TK" | "KB">("SD");
   const [rombelTab, setRombelTab] = useState<"SD" | "TK" | "KB">("SD");
 
-  if (!currentDetail) return null;
-
-  // Find the selected school object
-  const selectedSchool = state.schools.find((s) => s.id === activeSchoolId) || state.schools[0];
+  // Find the selected school object (parent App.tsx already guards !currentDetail)
+  const selectedSchool = state.schools.find((s) => s.id === activeSchoolId) || state.schools[0] || null;
 
   // Helper: Find item or return defaults
   const admissions = state.studentAdmissions.find((x) => x.schoolId === activeSchoolId) || {
@@ -239,15 +229,12 @@ export const DetailPanel: React.FC = () => {
     Number(promoSD12L) + Number(promoSD23L) + Number(promoSD34L) + Number(promoSD45L) + Number(promoSD56L);
   const totalSDPromoP =
     Number(promoSD12P) + Number(promoSD23P) + Number(promoSD34P) + Number(promoSD45P) + Number(promoSD56P);
-  const grandTotalSDPromo = totalSDPromoL + totalSDPromoP;
 
   const totalTKPromoL = Number(promoTKL);
   const totalTKPromoP = Number(promoTKP);
-  const grandTotalTKPromo = totalTKPromoL + totalTKPromoP;
 
   const totalKBPromoL = Number(promoKBL);
   const totalKBPromoP = Number(promoKBP);
-  const grandTotalKBPromo = totalKBPromoL + totalKBPromoP;
 
   // Total automatic promotion calculations (Sum of all active levels chosen)
   const automaticPromoL = totalSDPromoL + totalTKPromoL + totalKBPromoL;
@@ -259,7 +246,6 @@ export const DetailPanel: React.FC = () => {
     Number(romSDG1) + Number(romSDG2) + Number(romSDG3) + Number(romSDG4) + Number(romSDG5) + Number(romSDG6);
   const totalTKRombel = Number(romTKA) + Number(romTKB);
   const totalKBRombel = Number(romKBPlay) + Number(romKBCont);
-  const grandTotalRombels = totalSDRombel + totalTKRombel + totalKBRombel;
 
   // 4, 5, 6. Alumni, continuing, and non-continuing
   const totalAlum = Number(alumL) + Number(alumP);
@@ -269,23 +255,6 @@ export const DetailPanel: React.FC = () => {
   // Percentages with safety guards
   const contPercent = totalAlum > 0 ? Math.round((totalCont / totalAlum) * 100) : 0;
   const nonPercent = totalAlum > 0 ? Math.round((totalNon / totalAlum) * 100) : 0;
-
-  // Level validation matching
-  const matchingSchoolsForFilter = state.schools.filter((sch) => {
-    if (currentDetail === "admission") return true; 
-    if (currentDetail === "alumni_data") return true;
-    if (currentDetail === "promotion") {
-      if (promotionTab === "SD" && sch.level === SchoolLevel.SD) return true;
-      if (promotionTab === "TK" && sch.level === SchoolLevel.TK) return true;
-      if (promotionTab === "KB" && sch.level === SchoolLevel.KB) return true;
-    }
-    if (currentDetail === "rombel") {
-      if (rombelTab === "SD" && sch.level === SchoolLevel.SD) return true;
-      if (rombelTab === "TK" && sch.level === SchoolLevel.TK) return true;
-      if (rombelTab === "KB" && sch.level === SchoolLevel.KB) return true;
-    }
-    return false;
-  });
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24 max-w-md mx-auto relative shadow-xl">

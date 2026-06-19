@@ -122,11 +122,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [state]);
 
   const refreshState = async () => {
-    const apiState = await loadState();
-    setState((prev) => ({
-      ...apiState,
-      currentUser: prev.currentUser,
-    }));
+    try {
+      const apiState = await loadState();
+      setState((prev) => ({
+        ...apiState,
+        currentUser: prev.currentUser,
+      }));
+    } catch (e) {
+      console.error("refreshState gagal:", e);
+      triggerNotification("Gagal menyegarkan data. Coba lagi.");
+    }
   };
 
   const finishSplash = () => setSplashActive(false);
@@ -386,7 +391,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
       return { ...prev, schools: updatedSchools };
     });
-    api.updateSchoolStatus(schoolId, nextStatus).catch(() => {});
+    api.updateSchoolStatus(schoolId, nextStatus).catch(() => {
+      triggerNotification(`Gagal menyimpan status ${schoolName}. Coba lagi.`);
+      // Revert optimistic update
+      setState((prev) => {
+        const idx = prev.schools.findIndex((s) => s.id === schoolId);
+        if (idx === -1) return prev;
+        const revertSchools = [...prev.schools];
+        revertSchools[idx] = { ...revertSchools[idx], status: nextStatus === "VALID" ? "PENDING" : "VALID" };
+        return { ...prev, schools: revertSchools };
+      });
+    });
     triggerNotification(`Status ${schoolName} diubah menjadi ${nextStatus}`);
   };
 

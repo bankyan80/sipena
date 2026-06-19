@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useApp } from "../AppContext";
-import { motion, useMotionValue, useSpring } from "motion/react";
+import { motion } from "motion/react";
 
 interface StatCardProps {
   id: string;
@@ -34,7 +33,7 @@ const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
     }, stepTime);
 
     return () => clearInterval(timer);
-  }, [value]);
+  }, [value, displayValue]);
 
   return <span>{displayValue}</span>;
 };
