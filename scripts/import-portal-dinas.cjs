@@ -86,16 +86,26 @@ function getLevelLabel(level) {
 }
 
 // ── Parse kelas & rombel to extract grade info ──
+// Roman numeral map for rombel like "I A", "VI C", "II B"
+const ROMAN = { I: "1", II: "2", III: "3", IV: "4", V: "5", VI: "6" };
+
 function parseGrade(kelasStr, rombelStr, level) {
   if (level === "SD") {
-    const m = String(kelasStr).match(/(\d)/);
-    return m ? m[1] : null;
+    if (kelasStr || kelasStr === 0) {
+      const m = String(kelasStr).match(/(\d)/);
+      if (m) return m[1];
+    }
+    // Fallback: extract grade from rombel (e.g. "VI C" → 6, "I A" → 1)
+    const r = (rombelStr || "").toUpperCase().trim();
+    const parts = r.split(/\s+/);
+    if (parts.length > 0 && ROMAN[parts[0]]) return ROMAN[parts[0]];
+    return null;
   }
   if (level === "TK") {
     const r = (rombelStr || "").toUpperCase();
     if (r.includes("A")) return "A";
     if (r.includes("B")) return "B";
-    return "A"; // default
+    return "A";
   }
   if (level === "KB") {
     const r = (rombelStr || "").toUpperCase();
@@ -157,35 +167,8 @@ async function main() {
     }
     console.log(`Imported ${ALL_SCHOOLS.length} schools`);
 
-    // ── 3. Import pegawai → users ──
-    let importedPegawai = 0;
-    const usedUsernames = new Set();
-    for (const p of semuaPegawai) {
-      let schoolId = null;
-      const sekolahName = (p.sekolah || "").trim();
-      if (sekolahName) {
-        const canon = canonicalAliases[sekolahName.toLowerCase()];
-        const lookup = canon ? canon.toLowerCase() : sekolahName.toLowerCase();
-        schoolId = schoolNamaMap[lookup] || schoolNamaMap[canon?.toLowerCase()] || null;
-      }
-
-      const id = `peg_${String(importedPegawai).padStart(4, "0")}`;
-      let username = p.nik ? `nik_${p.nik}` : `peg_${importedPegawai}`;
-      while (usedUsernames.has(username)) {
-        username = username + "_" + Math.random().toString(36).slice(2, 6);
-      }
-      usedUsernames.add(username);
-      const role = "PUBLIK";
-      const name = (p.nama || "").trim() || username;
-
-      await client.execute({
-        sql: `INSERT INTO users (id, username, name, role, school_id, created_at, updated_at, created_by)
-              VALUES (?, ?, ?, ?, ?, ?, ?, 'import')`,
-        args: [id, username, name, role, schoolId, now, now],
-      });
-      importedPegawai++;
-    }
-    console.log(`Imported ${importedPegawai} users`);
+    // ── 3. Users tidak diimport (login via NPSN + password) ──
+    console.log("Skipped user import (login via NPSN)");
 
     // ── 4. Aggregasi siswa per sekolah ──
     const counts = {}; // key: "npsn_kelas_jk"
@@ -316,20 +299,29 @@ async function main() {
     }
     console.log("Imported class_groups");
 
-    // ── 6. Insert student_promotions (SD only) ──
+    // ── 6. Insert student_promotions ──
     for (const s of ALL_SCHOOLS) {
-      if (s.jenjang !== "SD") continue;
       const schoolId = schoolMap[s.npsn];
       const npsn = s.npsn;
       const cols = [];
       const vals = [];
 
-      for (let g = 1; g <= 5; g++) {
-        const l = counts[`${npsn}_${g}_l`] || 0;
-        const p = counts[`${npsn}_${g}_p`] || 0;
-        const [colL, colP] = PROM_COLS[String(g)];
-        cols.push(colL, colP);
-        vals.push(l, p);
+      if (s.jenjang === "SD") {
+        for (let g = 1; g <= 5; g++) {
+          const l = counts[`${npsn}_${g}_l`] || 0;
+          const p = counts[`${npsn}_${g}_p`] || 0;
+          const [colL, colP] = PROM_COLS[String(g)];
+          cols.push(colL, colP);
+          vals.push(l, p);
+        }
+      } else if (s.jenjang === "TK") {
+        // TK B = upper level, stored as "promoted" (not same kids as admissions/A)
+        cols.push("tk_a_to_b_l", "tk_a_to_b_p");
+        vals.push(counts[`${npsn}_B_l`] || 0, counts[`${npsn}_B_p`] || 0);
+      } else if (s.jenjang === "KB") {
+        // KB CONT = upper level, stored as "promoted" (not same kids as admissions/PLAY)
+        cols.push("kb_play_to_cont_l", "kb_play_to_cont_p");
+        vals.push(counts[`${npsn}_CONT_l`] || 0, counts[`${npsn}_CONT_p`] || 0);
       }
 
       const hasData = vals.some(v => v > 0);
@@ -371,7 +363,7 @@ async function main() {
     }
     console.log("Imported student_admissions");
 
-    // ── 8. Alumni & continuing (SD kelas 6, TK kelas B, KB CONT) ──
+    // ── 8. Alumni (SD K6, TK B, KB CONT) & continuing ──
     for (const s of ALL_SCHOOLS) {
       const schoolId = schoolMap[s.npsn];
       const npsn = s.npsn;
