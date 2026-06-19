@@ -18,7 +18,9 @@ function error(res, status, message) {
 }
 
 function ok(res, data) {
-  return new Response(JSON.stringify(data), {
+  return new Response(JSON.stringify(data, (key, value) =>
+    typeof value === "bigint" ? Number(value) : value
+  ), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });

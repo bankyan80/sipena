@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+*.db
+*.db-wal
+*.db-shm
+scripts/*.db
+
+.vercel
