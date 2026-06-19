@@ -29,9 +29,7 @@ export const Header: React.FC = () => {
           <h1 className="text-lg font-bold tracking-wider leading-none text-white">
             SIPENA
           </h1>
-          <span className="text-[10px] font-medium text-blue-100 mt-1 uppercase tracking-wide">
-            SD/TK/KB • TP 2026/2027
-          </span>
+
         </div>
 
         {/* Right: Notifications Button */}
