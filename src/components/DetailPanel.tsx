@@ -525,7 +525,7 @@ export const DetailPanel: React.FC = () => {
               )}
 
               {/* Edit grids based on tab */}
-              <div className="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar pr-1">
+              <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
                 {promotionTab === "SD" && (
                   <>
                     {[
@@ -687,7 +687,7 @@ export const DetailPanel: React.FC = () => {
               )}
 
               {/* Rombel grids */}
-              <div className="grid grid-cols-2 gap-3 max-h-[220px] overflow-y-auto no-scrollbar pr-1">
+              <div className="grid grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
                 {rombelTab === "SD" && (
                   <>
                     {[
