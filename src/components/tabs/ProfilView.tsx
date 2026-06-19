@@ -2,37 +2,19 @@ import React from "react";
 import { useApp } from "../../AppContext";
 import {
   User,
-  Shield,
-  Smartphone,
-  CheckCircle,
   LogOut,
-  Bell,
-  Sparkles,
   Info,
-  Calendar,
   Building2,
-  FileCheck2,
 } from "lucide-react";
 import { UserRole } from "../../types";
 
 export const ProfilView: React.FC = () => {
-  const { state, logout, triggerNotification } = useApp();
+  const { state, logout } = useApp();
   const user = state.currentUser;
 
   // Aggregate numbers
   const totalSchools = state.schools.length;
   const validatedSchools = state.schools.filter((s) => s.status === "VALID").length;
-
-  const testPushNotification = () => {
-    const alertMessages = [
-      "Notifikasi Pengaduan: Operator SDN 1 Merdeka baru saja memperbarui data alumni.",
-      "Kecamatan: Laporan kompilasi kelulusan siap untuk dicetak.",
-      "Sistem SIPENA: Sinkronisasi luring (offline) berhasil dijalankan secara realtime.",
-      "Info Agenda: Sosialisasi pengawasan data TK/KB akan dihelat luring 25 Juni 2026."
-    ];
-    const item = alertMessages[Math.floor(Math.random() * alertMessages.length)];
-    triggerNotification(item);
-  };
 
   return (
     <div className="space-y-4 px-4 pt-4 pb-24 max-w-md mx-auto">
@@ -101,42 +83,7 @@ export const ProfilView: React.FC = () => {
         </div>
       )}
 
-      {/* 3. PWA Interactive checks tracker */}
-      <div className="bg-white p-4 rounded-[20px] shadow-soft border border-gray-100 space-y-3.5">
-        <div className="flex items-center gap-2.5">
-          <Smartphone size={18} className="text-[#22C55E]" />
-          <span className="text-xs font-bold text-[#0F3D91] uppercase tracking-wide">
-            Android PWA Platform Tracker
-          </span>
-        </div>
-
-        <div className="space-y-2 text-[11px] font-bold text-gray-600">
-          {[
-            { label: "Splash Screen Native Android", desc: "Merespon orientasi portrait" },
-            { label: "Offline Cache Penyimpanan", desc: "Mendukung operasional bebas kuota luring" },
-            { label: "Installable Home Screen Shortcut", desc: "Kompatibel untuk pintasan laci Android" },
-            { label: "Simulated Push Notification Engine", desc: "Instan memantau mutasi data" },
-          ].map((item, idx) => (
-            <div key={idx} className="flex gap-2.5 bg-gray-50/55 p-2.5 rounded-xl border border-gray-50">
-              <CheckCircle size={16} className="text-[#22C55E] shrink-0 mt-0.5" />
-              <div>
-                <p className="text-gray-800 font-bold leading-tight">{item.label}</p>
-                <p className="text-[9.5px] text-gray-400 font-medium leading-none mt-1">{item.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Action: Push Notification simulation trigger */}
-        <button
-          onClick={testPushNotification}
-          className="w-full bg-[#22C55E] hover:bg-emerald-600 text-white h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95 transition-all mt-2"
-        >
-          <Bell size={15} /> Tes Simulasi Push Notification
-        </button>
-      </div>
-
-      {/* 4. Log out button - only visible if logged in */}
+      {/* 3. Log out button - only visible if logged in */}
       {user ? (
         <button
           onClick={logout}
