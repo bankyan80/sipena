@@ -228,64 +228,6 @@ export const BerandaView: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Comparatives School visual SVG chart comparison */}
-      <div className="bg-white p-4 rounded-[20px] shadow-soft border border-gray-100 space-y-3">
-        <h3 className="text-xs font-extrabold text-[#0F3D91] uppercase tracking-wider">
-          Perbandingan Siswa & Rombel Pasca-Filter
-        </h3>
-        
-        {/* Beautiful high fidelity SVG styled comparisons */}
-        <div className="space-y-2 pt-1 font-bold">
-          {/* SD Segment bar */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-[10px]">
-              <span className="text-gray-500">SD (Sekolah Dasar)</span>
-              <span className="text-[#0F3D91]">
-                {totalRombelSD} Rombel
-              </span>
-            </div>
-            <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-              <div 
-                style={{ width: `${Math.min(100, (totalRombelSD / (totalRombelCombined || 1)) * 100)}%` }} 
-                className="bg-[#0F3D91] h-full rounded-full transition-all duration-300" 
-              />
-            </div>
-          </div>
-
-          {/* TK Segment bar */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-[10px]">
-              <span className="text-gray-500">TK (Taman Kanak-Kanak)</span>
-              <span className="text-[#22C55E]">
-                {totalRombelTK} Rombel
-              </span>
-            </div>
-            <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-              <div 
-                style={{ width: `${Math.min(100, (totalRombelTK / (totalRombelCombined || 1)) * 100)}%` }} 
-                className="bg-[#22C55E] h-full rounded-full transition-all duration-300" 
-              />
-            </div>
-          </div>
-
-          {/* KB Segment bar */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-[10px]">
-              <span className="text-gray-500">KB (Kelompok Bermain)</span>
-              <span className="text-[#F97316]">
-                {totalRombelKB} Rombel
-              </span>
-            </div>
-            <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-              <div 
-                style={{ width: `${Math.min(100, (totalRombelKB / (totalRombelCombined || 1)) * 100)}%` }} 
-                className="bg-[#F97316] h-full rounded-full transition-all duration-300" 
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* 4. Stat Cards Grid (2 columns, 6 cards - heights: 170px) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
