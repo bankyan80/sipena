@@ -40,8 +40,7 @@ interface AppContextType {
   setSelectedLevelFilter: (lvl: SchoolLevel | "all") => void;
   finishSplash: () => void;
 
-  login: (username: string, role?: UserRole) => boolean;
-  loginGoogle: (role: UserRole, schoolId?: string) => void;
+  login: (username: string, password: string) => boolean;
   logout: () => void;
 
   saveAdmissions: (schoolId: string, domisili: { l: number; p: number }, afirmasi: { l: number; p: number }, mutasi: { l: number; p: number }) => void;
@@ -139,12 +138,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentDetail(null);
   };
 
-  const login = (username: string, role: UserRole = UserRole.OPERATOR): boolean => {
-    let matchedUser: User | null = null;
+  const login = (username: string, password: string): boolean => {
     const nowISO = new Date().toISOString();
 
-    if (username.toLowerCase() === "admin") {
-      matchedUser = {
+    if (username.toLowerCase() === "admin" && password === "spadmin") {
+      const matchedUser: User = {
         id: "usr_admin",
         username: "admin",
         name: "Admin Kecamatan Utama",
@@ -153,80 +151,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updated_at: nowISO,
         created_by: "system",
       };
-    } else if (username.toLowerCase().startsWith("opsd") || username.includes("sd")) {
-      matchedUser = {
-        id: "usr_opsd",
-        username: username,
-        name: "Operator SDN 1 Merdeka",
-        role: UserRole.OPERATOR,
-        schoolId: "SD_01",
-        created_at: nowISO,
-        updated_at: nowISO,
-        created_by: "system",
-      };
-    } else if (username.toLowerCase().startsWith("optk") || username.includes("tk")) {
-      matchedUser = {
-        id: "usr_optk",
-        username: username,
-        name: "Operator TK Kasih Ibu",
-        role: UserRole.OPERATOR,
-        schoolId: "TK_01",
-        created_at: nowISO,
-        updated_at: nowISO,
-        created_by: "system",
-      };
-    } else if (username.toLowerCase().startsWith("opkb") || username.includes("kb")) {
-      matchedUser = {
-        id: "usr_opkb",
-        username: username,
-        name: "Operator KB Melati Indah",
-        role: UserRole.OPERATOR,
-        schoolId: "KB_01",
-        created_at: nowISO,
-        updated_at: nowISO,
-        created_by: "system",
-      };
-    } else {
-      matchedUser = {
-        id: "usr_generic_op",
-        username: username,
-        name: `Operator ${username.toUpperCase()}`,
-        role: UserRole.OPERATOR,
-        schoolId: "SD_02",
-        created_at: nowISO,
-        updated_at: nowISO,
-        created_by: "system",
-      };
+      setState((prev) => ({ ...prev, currentUser: matchedUser }));
+      triggerNotification("Login Berhasil! Masuk sebagai Admin.");
+      setActiveTab("beranda");
+      return true;
     }
 
-    setState((prev) => ({ ...prev, currentUser: matchedUser }));
-    triggerNotification(`Login Berhasil! Anda masuk sebagai ${matchedUser.role}.`);
-    setActiveTab("beranda");
-    return true;
-  };
+    const npsn = username.trim();
+    const expectedPassword = "sp" + npsn;
+    if (password !== expectedPassword) {
+      return false;
+    }
 
-  const loginGoogle = (role: UserRole, schoolId?: string) => {
-    const nowISO = new Date().toISOString();
-    let name = "Admin Kecamatan Utama";
-    if (role === UserRole.OPERATOR) {
-      const sch = state.schools.find((s) => s.id === (schoolId || "SD_01"));
-      name = `Operator ${sch ? sch.name : "Sekolah"}`;
+    const school = state.schools.find((s) => s.npsn === npsn);
+    if (!school) {
+      return false;
     }
 
     const matchedUser: User = {
-      id: role === UserRole.ADMIN ? "usr_google_admin" : `usr_google_${schoolId}`,
-      username: role === UserRole.ADMIN ? "google_admin" : `google_${schoolId}`,
-      name: name,
-      role: role,
-      schoolId: role === UserRole.OPERATOR ? (schoolId || "SD_01") : undefined,
+      id: "usr_" + npsn,
+      username: npsn,
+      name: "Operator " + school.name,
+      role: UserRole.OPERATOR,
+      schoolId: school.id,
       created_at: nowISO,
       updated_at: nowISO,
-      created_by: "google_oauth",
+      created_by: "system",
     };
 
     setState((prev) => ({ ...prev, currentUser: matchedUser }));
-    triggerNotification(`Login Google Berhasil! Masuk sebagai ${role}.`);
+    triggerNotification("Login Berhasil! Masuk sebagai Operator " + school.name + ".");
     setActiveTab("beranda");
+    return true;
   };
 
   const logout = () => {
@@ -459,7 +415,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedLevelFilter,
         finishSplash,
         login,
-        loginGoogle,
         logout,
         saveAdmissions,
         savePromotions,
