@@ -1,29 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { useApp } from "../AppContext";
-import { School, Landmark, GraduationCap, Flame } from "lucide-react";
+import { School, Landmark, GraduationCap, Flame, AlertCircle, RefreshCw } from "lucide-react";
 import { motion } from "motion/react";
 
 export const Splash: React.FC = () => {
-  const { finishSplash } = useApp();
+  const { finishSplash, loading, error, refreshState } = useApp();
+  const [ready, setReady] = useState(false);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Fill up loading bar dynamically
+    if (!loading) setReady(true);
+  }, [loading]);
+
+  useEffect(() => {
+    if (!ready) return;
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(() => {
-            finishSplash();
-          }, 300);
+          setTimeout(finishSplash, 300);
           return 100;
         }
-        return prev + 4; // Increments over ~1s total for optimal fast response
+        return prev + 4;
       });
     }, 45);
-
     return () => clearInterval(interval);
-  }, [finishSplash]);
+  }, [ready, finishSplash]);
 
   return (
     <div className="h-screen w-full bg-gradient-to-b from-[#E0F2FE] via-[#F8FAFC] to-white flex flex-col items-center justify-between p-6 text-center select-none overflow-hidden max-w-md mx-auto relative shadow-2xl">
@@ -182,17 +184,34 @@ export const Splash: React.FC = () => {
         </p>
       </motion.div>
 
-      {/* Bottom Section: Progress loading indicator */}
+      {/* Bottom Section: Progress loading indicator or error */}
       <div className="w-full max-w-[280px] mb-8 pb-4">
-        <div className="bg-gray-100 h-2 w-full rounded-full overflow-hidden border border-gray-200/50">
-          <motion.div
-            className="h-full bg-gradient-to-r from-[#0F3D91] to-[#22C55E]"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <p className="text-[10px] text-gray-400 font-extrabold tracking-widest mt-3 uppercase">
-          Mempersiapkan Berkas... {progress}%
-        </p>
+        {error ? (
+          <div className="flex flex-col items-center gap-3">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-600 text-center leading-relaxed">
+              <AlertCircle size={16} className="inline mr-1" />
+              {error}
+            </div>
+            <button
+              onClick={() => { window.location.reload(); }}
+              className="bg-[#0F3D91] text-white px-6 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer hover:bg-[#0c3276] transition-all"
+            >
+              <RefreshCw size={14} /> Muat Ulang
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="bg-gray-100 h-2 w-full rounded-full overflow-hidden border border-gray-200/50">
+              <motion.div
+                className="h-full bg-gradient-to-r from-[#0F3D91] to-[#22C55E]"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-[10px] text-gray-400 font-extrabold tracking-widest mt-3 uppercase">
+              Mempersiapkan Berkas... {progress}%
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

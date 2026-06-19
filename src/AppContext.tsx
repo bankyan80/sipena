@@ -27,6 +27,7 @@ export type DetailViewType =
 interface AppContextType {
   state: AppState;
   loading: boolean;
+  error: string | null;
   activeTab: "beranda" | "rekap" | "login" | "profil";
   currentDetail: DetailViewType | null;
   selectedSchoolFilter: string;
@@ -95,6 +96,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   });
   const [loading, setLoading] = useState(!loadLocalState());
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTabInternal] = useState<"beranda" | "rekap" | "login" | "profil">("beranda");
   const [currentDetail, setCurrentDetail] = useState<DetailViewType | null>(null);
   const [selectedSchoolFilter, setSelectedSchoolFilter] = useState<string>("all");
@@ -112,7 +114,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentUser: prev.currentUser,
       }));
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch((e) => {
+      setError(e instanceof Error ? e.message : "Gagal memuat data dari server");
+      setLoading(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -411,23 +416,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const toggleSchoolValidation = (schoolId: string) => {
+    let schoolName = "Sekolah";
+    let nextStatus = "PENDING";
     setState((prev) => {
       const idx = prev.schools.findIndex((s) => s.id === schoolId);
       if (idx === -1) return prev;
       const nowISO = new Date().toISOString();
       const updatedSchools = [...prev.schools];
-      const nextStatus = updatedSchools[idx].status === "VALID" ? "PENDING" : "VALID";
+      nextStatus = updatedSchools[idx].status === "VALID" ? "PENDING" : "VALID";
+      schoolName = updatedSchools[idx].name || "Sekolah";
       updatedSchools[idx] = {
         ...updatedSchools[idx],
         status: nextStatus,
         updated_at: nowISO,
       };
-
-      api.updateSchoolStatus(schoolId, nextStatus).catch(() => {});
-      triggerNotification(`Status ${updatedSchools[idx].name || "Sekolah"} diubah menjadi ${nextStatus}`);
-
       return { ...prev, schools: updatedSchools };
     });
+    api.updateSchoolStatus(schoolId, nextStatus).catch(() => {});
+    triggerNotification(`Status ${schoolName} diubah menjadi ${nextStatus}`);
   };
 
   const triggerNotification = (message: string) => {
@@ -441,6 +447,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         state,
         loading,
+        error,
         activeTab,
         currentDetail,
         selectedSchoolFilter,
