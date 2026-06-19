@@ -218,11 +218,9 @@ export const DetailPanel: React.FC = () => {
         kb_play: Number(romKBPlay),
         kb_cont: Number(romKBCont),
       });
-    } else if (currentDetail === "alumni") {
+    } else if (currentDetail === "alumni_data") {
       saveAlumni(activeSchoolId, Number(alumL), Number(alumP));
-    } else if (currentDetail === "continuing") {
       saveContinuing(activeSchoolId, Number(contL), Number(contP));
-    } else if (currentDetail === "non_continuing") {
       saveNonContinuing(activeSchoolId, Number(nonL), Number(nonP));
     }
   };
@@ -275,7 +273,7 @@ export const DetailPanel: React.FC = () => {
   // Level validation matching
   const matchingSchoolsForFilter = state.schools.filter((sch) => {
     if (currentDetail === "admission") return true; 
-    if (currentDetail === "alumni" || currentDetail === "continuing" || currentDetail === "non_continuing") return true;
+    if (currentDetail === "alumni_data") return true;
     if (currentDetail === "promotion") {
       if (promotionTab === "SD" && sch.level === SchoolLevel.SD) return true;
       if (promotionTab === "TK" && sch.level === SchoolLevel.TK) return true;
@@ -308,9 +306,7 @@ export const DetailPanel: React.FC = () => {
               {currentDetail === "admission" && "Pendataan Siswa Baru"}
               {currentDetail === "promotion" && "Kenaikan Siswa"}
               {currentDetail === "rombel" && "Jumlah Rombel"}
-              {currentDetail === "alumni" && "Keluaran Alumni"}
-              {currentDetail === "continuing" && "Melanjutkan Studi"}
-              {currentDetail === "non_continuing" && "Tidak Melanjutkan"}
+              {currentDetail === "alumni_data" && "Data Alumni"}
             </h2>
           </div>
         </div>
@@ -771,159 +767,96 @@ export const DetailPanel: React.FC = () => {
             </div>
           )}
 
-          {/* 4. DATA ALUMNI */}
-          {currentDetail === "alumni" && (
+          {/* 4. DATA ALUMNI (gabung alumni + melanjutkan + tidak melanjutkan) */}
+          {currentDetail === "alumni_data" && (
             <div className="space-y-4">
-              <span className="text-[10px] text-[#7C3AED] font-extrabold uppercase tracking-wide block">
-                REKAP ALUMNI TAHUN PELAJARAN 2025/2026
-              </span>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5 bg-purple-50/20 border border-purple-100/50 p-3 rounded-xl">
-                  <label className="text-[10px] text-purple-600 font-bold uppercase">Laki-Laki</label>
-                  <input
-                    type="number"
-                    min="0"
-                    disabled={!canEdit}
-                    value={alumL}
-                    onChange={(e) => setAlumL(Math.max(0, Number(e.target.value)))}
-                    className="h-11 bg-white border border-purple-100 text-center text-sm font-extrabold rounded-lg"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5 bg-purple-50/20 border border-purple-100/50 p-3 rounded-xl">
-                  <label className="text-[10px] text-purple-600 font-bold uppercase">Perempuan</label>
-                  <input
-                    type="number"
-                    min="0"
-                    disabled={!canEdit}
-                    value={alumP}
-                    onChange={(e) => setAlumP(Math.max(0, Number(e.target.value)))}
-                    className="h-11 bg-white border border-purple-100 text-center text-sm font-extrabold rounded-lg"
-                  />
-                </div>
-              </div>
-
-              {/* Master Card */}
-              <div className="bg-[#7C3AED] text-white p-4 rounded-[20px] shadow-soft flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-white/10 rounded-xl">
-                    <GraduationCap size={24} />
+              {/* ── ALUMNI ── */}
+              <div className="bg-purple-50/30 border border-purple-100/50 p-4 rounded-[20px] space-y-3">
+                <span className="text-[10px] text-[#7C3AED] font-extrabold uppercase tracking-wide block">
+                  Rekap Alumni TP 2025/2026
+                </span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-purple-600 font-bold uppercase">Laki-Laki</label>
+                    <input type="number" min="0" disabled={!canEdit}
+                      value={alumL} onChange={(e) => setAlumL(Math.max(0, Number(e.target.value)))}
+                      className="h-11 bg-white border border-purple-100 text-center text-sm font-extrabold rounded-lg" />
                   </div>
-                  <div>
-                    <h5 className="text-[10px] uppercase font-bold text-purple-200">Total Mutlak Alumni</h5>
-                    <p className="text-[9.5px] text-purple-100 mt-0.5">TP 2025/2026</p>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-purple-600 font-bold uppercase">Perempuan</label>
+                    <input type="number" min="0" disabled={!canEdit}
+                      value={alumP} onChange={(e) => setAlumP(Math.max(0, Number(e.target.value)))}
+                      className="h-11 bg-white border border-purple-100 text-center text-sm font-extrabold rounded-lg" />
                   </div>
                 </div>
-                <strong className="text-xl font-black">{totalAlum}</strong>
-              </div>
-            </div>
-          )}
-
-          {/* 5. DATA SISWA MELANJUTKAN */}
-          {currentDetail === "continuing" && (
-            <div className="space-y-4">
-              <span className="text-[10px] text-[#22C55E] font-extrabold uppercase tracking-wide block">
-                DATA SISWA MELANJUTKAN (TP 2026/2027)
-              </span>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5 bg-emerald-50/20 border border-emerald-100/50 p-3 rounded-xl">
-                  <label className="text-[10px] text-emerald-600 font-bold uppercase">Laki-Laki (L)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    disabled={!canEdit}
-                    value={contL}
-                    onChange={(e) => setContL(Math.max(0, Number(e.target.value)))}
-                    className="h-11 bg-white border border-emerald-100 text-center text-sm font-extrabold rounded-lg"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5 bg-emerald-50/20 border border-emerald-100/50 p-3 rounded-xl">
-                  <label className="text-[10px] text-emerald-600 font-bold uppercase">Perempuan (P)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    disabled={!canEdit}
-                    value={contP}
-                    onChange={(e) => setContP(Math.max(0, Number(e.target.value)))}
-                    className="h-11 bg-white border border-emerald-100 text-center text-sm font-extrabold rounded-lg"
-                  />
+                <div className="bg-[#7C3AED] text-white p-3 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap size={18} />
+                    <span className="text-[10px] font-bold text-purple-200">Total Alumni</span>
+                  </div>
+                  <strong className="text-lg font-black">{totalAlum}</strong>
                 </div>
               </div>
 
-              {/* Progress and percentage card */}
-              <div className="bg-gray-50 border border-gray-100 p-4 rounded-[20px] space-y-3">
-                <div className="flex justify-between items-center text-xs">
+              {/* ── MELANJUTKAN ── */}
+              <div className="bg-emerald-50/30 border border-emerald-100/50 p-4 rounded-[20px] space-y-3">
+                <span className="text-[10px] text-[#22C55E] font-extrabold uppercase tracking-wide block">
+                  Rekap Alumni yang Melanjutkan (TP 2026/2027)
+                </span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-emerald-600 font-bold uppercase">Laki-Laki</label>
+                    <input type="number" min="0" disabled={!canEdit}
+                      value={contL} onChange={(e) => setContL(Math.max(0, Number(e.target.value)))}
+                      className="h-11 bg-white border border-emerald-100 text-center text-sm font-extrabold rounded-lg" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-emerald-600 font-bold uppercase">Perempuan</label>
+                    <input type="number" min="0" disabled={!canEdit}
+                      value={contP} onChange={(e) => setContP(Math.max(0, Number(e.target.value)))}
+                      className="h-11 bg-white border border-emerald-100 text-center text-sm font-extrabold rounded-lg" />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-xs px-1">
                   <span className="font-bold text-gray-500">Persentase Melanjutkan:</span>
                   <strong className="text-emerald-500 font-extrabold text-sm">{contPercent}%</strong>
                 </div>
-
-                {/* Styled progress bar */}
-                <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden border">
-                  <div
-                    style={{ width: `${contPercent}%` }}
-                    className="bg-[#22C55E] h-full transition-all duration-500 rounded-full"
-                  />
+                <div className="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden border">
+                  <div style={{ width: `${contPercent}%` }} className="bg-[#22C55E] h-full transition-all duration-500 rounded-full" />
                 </div>
-
                 <div className="bg-white p-2.5 rounded-xl text-[10.5px] text-gray-500 font-medium leading-relaxed">
-                  Total Melanjutkan: <strong>{totalCont}</strong> dari{" "}
-                  <strong>{totalAlum}</strong> alumni
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 6. DATA SISWA TIDAK MELANJUTKAN */}
-          {currentDetail === "non_continuing" && (
-            <div className="space-y-4">
-              <span className="text-[10px] text-[#EF4444] font-extrabold uppercase tracking-wide block">
-                DATA SISWA TIDAK MELANJUTKAN (TP 2026/2027)
-              </span>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5 bg-red-50/20 border border-red-100/50 p-3 rounded-xl">
-                  <label className="text-[10px] text-red-500 font-bold uppercase">Laki-Laki (L)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    disabled={!canEdit}
-                    value={nonL}
-                    onChange={(e) => setNonL(Math.max(0, Number(e.target.value)))}
-                    className="h-11 bg-white border border-red-100 text-center text-sm font-extrabold rounded-lg"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5 bg-red-50/20 border border-red-100/50 p-3 rounded-xl">
-                  <label className="text-[10px] text-red-500 font-bold uppercase">Perempuan (P)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    disabled={!canEdit}
-                    value={nonP}
-                    onChange={(e) => setNonP(Math.max(0, Number(e.target.value)))}
-                    className="h-11 bg-white border border-red-100 text-center text-sm font-extrabold rounded-lg"
-                  />
+                  Total Melanjutkan: <strong>{totalCont}</strong> dari <strong>{totalAlum}</strong> alumni
                 </div>
               </div>
 
-              {/* Progress and percentage card */}
-              <div className="bg-gray-50 border border-gray-100 p-4 rounded-[20px] space-y-3">
-                <div className="flex justify-between items-center text-xs">
+              {/* ── TIDAK MELANJUTKAN ── */}
+              <div className="bg-red-50/30 border border-red-100/50 p-4 rounded-[20px] space-y-3">
+                <span className="text-[10px] text-[#EF4444] font-extrabold uppercase tracking-wide block">
+                  Rekap Alumni yang Tidak Melanjutkan (TP 2026/2027)
+                </span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-red-500 font-bold uppercase">Laki-Laki</label>
+                    <input type="number" min="0" disabled={!canEdit}
+                      value={nonL} onChange={(e) => setNonL(Math.max(0, Number(e.target.value)))}
+                      className="h-11 bg-white border border-red-100 text-center text-sm font-extrabold rounded-lg" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-red-500 font-bold uppercase">Perempuan</label>
+                    <input type="number" min="0" disabled={!canEdit}
+                      value={nonP} onChange={(e) => setNonP(Math.max(0, Number(e.target.value)))}
+                      className="h-11 bg-white border border-red-100 text-center text-sm font-extrabold rounded-lg" />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-xs px-1">
                   <span className="font-bold text-gray-500">Persentase Tidak Melanjutkan:</span>
                   <strong className="text-red-500 font-extrabold text-sm">{nonPercent}%</strong>
                 </div>
-
-                {/* Styled progress bar */}
-                <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden border">
-                  <div
-                    style={{ width: `${nonPercent}%` }}
-                    className="bg-[#EF4444] h-full transition-all duration-500 rounded-full"
-                  />
+                <div className="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden border">
+                  <div style={{ width: `${nonPercent}%` }} className="bg-[#EF4444] h-full transition-all duration-500 rounded-full" />
                 </div>
-
                 <div className="bg-white p-2.5 rounded-xl text-[10.5px] text-gray-500 font-medium leading-relaxed">
-                  Total Tidak Melanjutkan: <strong>{totalNon}</strong> dari{" "}
-                  <strong>{totalAlum}</strong> alumni
+                  Total Tidak Melanjutkan: <strong>{totalNon}</strong> dari <strong>{totalAlum}</strong> alumni
                 </div>
               </div>
             </div>

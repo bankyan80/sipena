@@ -6,8 +6,6 @@ import {
   TrendingUp,
   School,
   GraduationCap,
-  BookOpen,
-  UserX,
   Building,
   CheckCircle,
   Clock,
@@ -59,11 +57,7 @@ export const BerandaView: React.FC = () => {
   let totalAlumniL = 0;
   let totalAlumniP = 0;
 
-  let totalContinuingL = 0;
-  let totalContinuingP = 0;
 
-  let totalNonContinuingL = 0;
-  let totalNonContinuingP = 0;
 
   filteredSchools.forEach((sch) => {
     // 1. Admission numbers
@@ -114,19 +108,6 @@ export const BerandaView: React.FC = () => {
       totalAlumniP += al.p;
     }
 
-    // 5. Continuing Counts
-    const co = state.continuingStudents.find((c) => c.schoolId === sch.id);
-    if (co) {
-      totalContinuingL += co.l;
-      totalContinuingP += co.p;
-    }
-
-    // 6. Non-Continuing Counts
-    const nc = state.nonContinuingStudents.find((n) => n.schoolId === sch.id);
-    if (nc) {
-      totalNonContinuingL += nc.l;
-      totalNonContinuingP += nc.p;
-    }
   });
 
   const totalRombelCombined = totalRombelSD + totalRombelTK + totalRombelKB;
@@ -279,9 +260,9 @@ export const BerandaView: React.FC = () => {
             onClick={() => setCurrentDetail("rombel")}
           />
 
-          {/* KARTU 4: Data Alumni */}
+          {/* KARTU 4: Data Alumni (gabung alumni + melanjutkan + tidak melanjutkan) */}
           <StatCard
-            id="alumni"
+            id="alumni_data"
             title="Data Alumni"
             sub="L/P/Total"
             icon={<GraduationCap size={16} />}
@@ -289,33 +270,7 @@ export const BerandaView: React.FC = () => {
             l={totalAlumniL}
             p={totalAlumniP}
             total={totalAlumniL + totalAlumniP}
-            onClick={() => setCurrentDetail("alumni")}
-          />
-
-          {/* KARTU 5: Data Siswa Melanjutkan */}
-          <StatCard
-            id="continuing"
-            title="Data Siswa Melanjutkan"
-            sub="L/P/Total"
-            icon={<BookOpen size={16} />}
-            color="#10B981"
-            l={totalContinuingL}
-            p={totalContinuingP}
-            total={totalContinuingL + totalContinuingP}
-            onClick={() => setCurrentDetail("continuing")}
-          />
-
-          {/* KARTU 6: Data Siswa Tidak Melanjutkan */}
-          <StatCard
-            id="non_continuing"
-            title="Siswa Tidak Melanjutkan"
-            sub="L/P/Total"
-            icon={<UserX size={16} />}
-            color="#EF4444"
-            l={totalNonContinuingL}
-            p={totalNonContinuingP}
-            total={totalNonContinuingL + totalNonContinuingP}
-            onClick={() => setCurrentDetail("non_continuing")}
+            onClick={() => setCurrentDetail("alumni_data")}
           />
         </div>
       </div>

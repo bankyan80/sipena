@@ -20,9 +20,7 @@ export type DetailViewType =
   | "admission"
   | "promotion"
   | "rombel"
-  | "alumni"
-  | "continuing"
-  | "non_continuing";
+  | "alumni_data";
 
 interface AppContextType {
   state: AppState;
