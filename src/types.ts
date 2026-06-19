@@ -12,6 +12,7 @@ export enum SchoolLevel {
 
 export interface School extends AuditTrail {
   id: string; // e.g., "SD_01", "TK_01"
+  npsn: string; // NPSN (Nomor Pokok Sekolah Nasional)
   name: string;
   level: SchoolLevel;
   address: string;

@@ -8,12 +8,12 @@ const client = createClient({
 });
 
 const seedSchools = [
-  { id: "SD_01", name: "SD Negeri 1 Merdeka", level: "SD", address: "Jl. Pendidikan No. 12, Kecamatan Utama", status: "VALID", created_by: "system" },
-  { id: "SD_02", name: "SD Swasta Bhakti Luhur", level: "SD", address: "Jl. Merdeka No. 45, Kecamatan Utama", status: "PENDING", created_by: "system" },
-  { id: "TK_01", name: "TK Kasih Ibu", level: "TK", address: "Jl. Melati Raya No. 3, Kecamatan Utama", status: "VALID", created_by: "system" },
-  { id: "TK_02", name: "TK Kartini Mandiri", level: "TK", address: "Jl. Raden Kartini No. 8, Kecamatan Utama", status: "PENDING", created_by: "system" },
-  { id: "KB_01", name: "KB Melati Indah", level: "KB", address: "Komp. Asri Blok D No. 2, Kecamatan Utama", status: "VALID", created_by: "system" },
-  { id: "KB_02", name: "KB Sinar Mentari", level: "KB", address: "Komp. Griya Kencana No. 15, Kecamatan Utama", status: "PENDING", created_by: "system" },
+  { id: "SD_01", npsn: "12345678", name: "SD Negeri 1 Merdeka", level: "SD", address: "Jl. Pendidikan No. 12, Kecamatan Utama", status: "VALID", created_by: "system" },
+  { id: "SD_02", npsn: "23456789", name: "SD Swasta Bhakti Luhur", level: "SD", address: "Jl. Merdeka No. 45, Kecamatan Utama", status: "PENDING", created_by: "system" },
+  { id: "TK_01", npsn: "34567890", name: "TK Kasih Ibu", level: "TK", address: "Jl. Melati Raya No. 3, Kecamatan Utama", status: "VALID", created_by: "system" },
+  { id: "TK_02", npsn: "45678901", name: "TK Kartini Mandiri", level: "TK", address: "Jl. Raden Kartini No. 8, Kecamatan Utama", status: "PENDING", created_by: "system" },
+  { id: "KB_01", npsn: "56789012", name: "KB Melati Indah", level: "KB", address: "Komp. Asri Blok D No. 2, Kecamatan Utama", status: "VALID", created_by: "system" },
+  { id: "KB_02", npsn: "67890123", name: "KB Sinar Mentari", level: "KB", address: "Komp. Griya Kencana No. 15, Kecamatan Utama", status: "PENDING", created_by: "system" },
 ];
 
 async function setup() {
@@ -22,6 +22,7 @@ async function setup() {
     await client.execute(`
       CREATE TABLE IF NOT EXISTS schools (
         id TEXT PRIMARY KEY,
+        npsn TEXT NOT NULL DEFAULT '',
         name TEXT NOT NULL,
         level TEXT NOT NULL CHECK(level IN ('SD', 'TK', 'KB')),
         address TEXT NOT NULL DEFAULT '',
@@ -155,8 +156,8 @@ async function setup() {
     if (existing.rows[0].cnt === 0) {
       for (const sch of seedSchools) {
         await client.execute({
-          sql: "INSERT INTO schools (id, name, level, address, status, created_by) VALUES (?, ?, ?, ?, ?, ?)",
-          args: [sch.id, sch.name, sch.level, sch.address, sch.status, sch.created_by],
+          sql: "INSERT INTO schools (id, npsn, name, level, address, status, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          args: [sch.id, sch.npsn, sch.name, sch.level, sch.address, sch.status, sch.created_by],
         });
       }
       console.log("Seeded schools");

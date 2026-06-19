@@ -26,6 +26,8 @@ export const BerandaView: React.FC = () => {
     setSelectedLevelFilter,
   } = useApp();
 
+  const [npsnSearch, setNpsnSearch] = React.useState("");
+
   const user = state.currentUser;
   const isOperator = user?.role === "OPERATOR";
 
@@ -39,7 +41,8 @@ export const BerandaView: React.FC = () => {
   const filteredSchools = state.schools.filter((sch) => {
     const levelMatch = selectedLevelFilter === "all" || sch.level === selectedLevelFilter;
     const schoolMatch = currentSchoolId === "all" || sch.id === currentSchoolId;
-    return levelMatch && schoolMatch;
+    const npsnMatch = !npsnSearch || sch.npsn.includes(npsnSearch);
+    return levelMatch && schoolMatch && npsnMatch;
   });
 
   // Calculate Aggregated Metrics across filtered schools in real-time
@@ -174,24 +177,19 @@ export const BerandaView: React.FC = () => {
 
       {/* 2. Interactive Navigation Filters segment */}
       <div className="bg-white p-4 rounded-[20px] shadow-soft border border-gray-100 space-y-3">
-        {/* School Search Lookup list (Only visible to admin/guest) */}
+        {/* School Search by NPSN (Only visible to admin/guest) */}
         {!isOperator && (
           <div className="flex flex-col gap-1.5">
             <label className="text-[9.5px] text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <Search size={11} /> Penyaringan Lembaga
+              <Search size={11} /> Pencarian Sekolah
             </label>
-            <select
-              value={selectedSchoolFilter}
-              onChange={(e) => setSelectedSchoolFilter(e.target.value)}
-              className="w-full h-10 px-3 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer shadow-2xs"
-            >
-              <option value="all">Semua Lembaga ({state.schools.length})</option>
-              {state.schools.map((sch) => (
-                <option key={sch.id} value={sch.id}>
-                  [{sch.level}] {sch.name}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              value={npsnSearch}
+              onChange={(e) => setNpsnSearch(e.target.value)}
+              placeholder="Cari berdasarkan NPSN..."
+              className="w-full h-10 px-3 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-2xs"
+            />
           </div>
         )}
 
@@ -221,9 +219,9 @@ export const BerandaView: React.FC = () => {
         <div className="text-[10px] text-gray-400 font-medium leading-tight flex items-center gap-2">
           <CheckCircle size={13} className="text-[#22C55E]" />
           <span>
-            {selectedSchoolFilter === "all"
-              ? "Menampilkan rekap kumulatif gabungan se-Kecamatan."
-              : `Menampilkan data khusus ${state.schools.find((s) => s.id === currentSchoolId)?.name}`}
+            {npsnSearch
+              ? `Menampilkan ${filteredSchools.length} sekolah dengan NPSN "${npsnSearch}"`
+              : "Menampilkan rekap kumulatif gabungan se-Kecamatan."}
           </span>
         </div>
       </div>

@@ -120,6 +120,7 @@ export const api = {
 function mapSchool(row: any) {
   return {
     id: row.id,
+    npsn: row.npsn,
     name: row.name,
     level: row.level,
     address: row.address,
